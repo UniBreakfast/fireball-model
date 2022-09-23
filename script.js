@@ -7,7 +7,7 @@ const fireball = {
   vx: 0,
   vy: 0,
   radius: 30,
-  color: 'yellow',
+  hue: 60,
   particles: [],
 }
 
@@ -24,18 +24,25 @@ onmousemove = e => {
 
 onmousedown = e => {
   if (!e.shiftKey) {
-    const {x, y} = e
+    const { x, y } = e
 
     throwFireball(x, y)
   }
 }
 
 onkeydown = e => {
-  if (e.key === 'Shift') canvas.style.cursor = 'none'
+  if (e.key === 'Shift') {
+    canvas.style.cursor = 'none'
+    stopFireball()
+  }
 }
 
 onkeyup = e => {
   if (e.key === 'Shift') canvas.style.cursor = 'auto'
+}
+
+function stopFireball() {
+  Object.assign(fireball, { vx: 0, vy: 0 })
 }
 
 function throwFireball(x, y) {
@@ -43,13 +50,13 @@ function throwFireball(x, y) {
   const vx = Math.cos(angle) * 10
   const vy = Math.sin(angle) * 10
 
-  Object.assign(fireball, {vx, vy})
+  Object.assign(fireball, { vx, vy })
 
-  fireball.particles.push(...Array.from({length: 100}, createParticle))
+  fireball.particles.push(...Array.from({ length: 100 }, createParticle))
 }
 
-function updateFireballPosition({x, y}) {
-  Object.assign(fireball, {x, y})
+function updateFireballPosition({ x, y }) {
+  Object.assign(fireball, { x, y })
 }
 
 function updateCanvasSize() {
@@ -60,16 +67,16 @@ function updateCanvasSize() {
 function render() {
   clear()
 
-  const {x, y, radius, color} = fireball
+  const { x, y, radius, hue } = fireball
 
-  drawFireball(x, y, radius, color)
+  drawFireball(x, y, radius, hue)
   updateFireball()
 
   requestAnimationFrame(render)
 }
 
 function updateFireball() {
-  const {vx, vy} = fireball
+  const { vx, vy } = fireball
 
   fireball.x += vx
   fireball.y += vy
@@ -77,9 +84,10 @@ function updateFireball() {
   updateParticles()
 }
 
-function drawFireball(x, y, radius, color) {
+function drawFireball(x, y, radius, hue) {
+  const color = `hsl(${hue}, 100%, 50%)`
   drawCircle(x, y, radius, color)
-  drawFireParticles(x, y, radius, color)
+  drawFireParticles()
 }
 
 function clear() {
@@ -94,13 +102,13 @@ function drawCircle(x, y, radius, color) {
 }
 
 function updateParticles() {
-  const {particles} = fireball
-  
-  particles.push(...Array.from({length: 3}, createParticle))
+  const { particles } = fireball
+
+  particles.push(...Array.from({ length: 6 }, createParticle))
 
   particles.forEach((particle, i) => {
-    const {x, y, radius, vx, vy, grow} = particle
-    const {width, height} = canvas
+    const { x, y, radius, vx, vy, grow } = particle
+    const { width, height } = canvas
 
     if (x < 0 || x > width || y < 0 || y > height || radius < 0) {
       particles.splice(i, 1)
@@ -109,31 +117,36 @@ function updateParticles() {
     }
 
     if (grow) {
-      particle.grow = (particle.radius += 0.3) < 7
+      particle.grow = (particle.radius += 0.7) < 8
     } else {
-      if ((particle.radius -= 0.6) < 0) return particles.splice(i, 1)
+      if ((particle.radius -= 0.2) < 0) return particles.splice(i, 1)
     }
 
-    particle.x += vx
-    particle.y += vy
+    particle.x += vx * (100 - particle.step) / 100
+    particle.y += vy - particle.step / 15
+    particle.step++
   })
 }
 
 function drawFireParticles() {
-  fireball.particles.forEach(({x, y, radius, color}) => drawCircle(x, y, radius, color))
+  fireball.particles.forEach(({ x, y, radius, step, hue }) => {
+    const color = `hsl(${hue - step * 1.5}, 100%, 50%)`
+    drawCircle(x, y, radius, color)
+  })
 }
 
 function createParticle() {
-  const {x, y, radius} = fireball
+  const { x, y, radius } = fireball
 
   return {
     x: x + rnd(-radius, radius),
     y: y + rnd(-radius, radius),
     radius: 0.1,
-    color: 'red',
-    vx: rnd(-3, 3),
-    vy: rnd(-5, 1),
+    hue: 60,
+    vx: rnd(-2, 2),
+    vy: rnd(-3, 3),
     grow: true,
+    step: 0,
   }
 }
 
