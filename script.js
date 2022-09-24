@@ -91,7 +91,9 @@ function drawFireball(x, y, radius, hue) {
 }
 
 function clear() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  ctx.fillStyle = `rgba(0, 0, 0, .15)`
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  // ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
 
 function drawCircle(x, y, radius, color) {
@@ -130,7 +132,7 @@ function updateParticles() {
 
 function drawFireParticles() {
   fireball.particles.forEach(({ x, y, radius, step, hue }) => {
-    const color = `hsl(${hue - step * 1.5}, 100%, 50%)`
+    const color = `hsla(${hue - step * 1.5}, 100%, 50%, ${1 - step / 100})`
     drawCircle(x, y, radius, color)
   })
 }
