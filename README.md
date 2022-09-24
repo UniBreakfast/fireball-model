@@ -1,4 +1,4 @@
-# fireball-model
+# [fireball-model](https://github.com/UniBreakfast/fireball-model)
 
 - **Shift + Mouse Move** to carry fireball around.
 - **Click** to throw it in a direction of the mouse pointer.
